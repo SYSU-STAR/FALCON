@@ -62,7 +62,7 @@ The setup commands have been tested on Ubuntu 20.04 (ROS Noetic). If you are usi
     wget https://cmake.org/files/v3.26/cmake-3.26.0-rc6.tar.gz
     tar -xvzf cmake-3.26.0-rc6.tar.gz
     cd cmake-3.26.0-rc6
-    ./configure
+    ./bootstrap
     make 
     sudo make install
     # restart terminal
