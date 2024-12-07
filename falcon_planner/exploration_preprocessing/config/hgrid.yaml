@@ -1,0 +1,6 @@
+hgrid:
+  num_levels: 1
+  cell_size_max: 5.0
+  min_unknown_num_scale: 0.1
+  ccl_step: 2
+  verbose: false

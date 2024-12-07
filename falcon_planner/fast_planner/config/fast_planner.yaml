@@ -1,0 +1,36 @@
+fast_planner:
+  control_points_distance: 0.5
+
+bspline_opt:
+  # Optimization parameters
+  bspline_degree: 3
+  safe_distance: 0.7
+  max_iteration_num: 1000
+  max_iteration_time: 0.01
+
+  # pos: SMOOTHNESS | DISTANCE | FEASIBILITY | START | END | MINTIME
+  pos:
+    smoothness: 20.0
+    distance: 50.0
+    feasibility: 1.0
+    start: 100.0
+    end: 50.0
+    time: 3.0
+
+  # yaw: SMOOTHNESS | START | END | WAYPOINTS
+  yaw:
+    smoothness: 50.0
+    start: 50.0
+    end: 50.0
+    waypoint: 50.0 
+
+traj_server:
+  init_dx: 1.0
+  init_dy: 0.0
+  init_dz: 1.0
+  kx_x: 5.7
+  kx_y: 5.7
+  kx_z: 6.2
+  kv_x: 3.4
+  kv_y: 3.4
+  kv_z: 4.0

@@ -1,0 +1,46 @@
+voxel_mapping:
+  mode: "uav_simulator"
+  resolution_fine: 0.1 # meters, box_volume < 4000.0 m^3
+  resolution_coarse: 0.2 # meters, box_volume > 4000.0 m^3
+
+  depth_filter_margin: 0
+  depth_scaling_factor: 1000.0
+  depth_decimation_filter: false
+  skip_pixel: 4
+  concurrent_depth_input_max: 1
+
+  publish_tsdf: true
+  publish_esdf: true
+  publish_occupancy_grid: true
+  publish_tsdf_slice: true
+  publish_esdf_slice: true
+  publish_occupancy_grid_slice: true
+  publish_tsdf_period: true
+  publish_esdf_period: true
+  publish_occupancy_grid_period: true
+  tsdf_slice_height: 0.5
+  tsdf_slice_visualization_height: 0.5
+  esdf_slice_height: 1.0
+  esdf_slice_visualization_height: -1.0
+  occupancy_grid_slice_height: 0.5
+  occupancy_grid_slice_visualization_height: 0.5
+
+  verbose: false
+  verbose_time: false
+
+  tsdf:
+    tsdf_truncated_distance_scale: 2.0 # tsdf_truncated_dist = scale * resolution
+    raycast_min: 0.0
+    raycast_max: 5.0
+    epsilon: 0.0001 # 1e-4
+  
+  occupancy_grid:
+    sdf_cutoff_distance_scale: 0.5 # sdf_cutoff_distance = scale * resolution
+    occupancy_grid_mode: "GEN_TSDF"
+
+transformer:
+  world_frame: "world"
+  sensor_frame: "camera"
+  pose_topic_type: "transform" # "pose", "odometry", "transform" 
+  timestamp_tolerance: 0.001 # 1ms
+  verbose: false

@@ -1,0 +1,4 @@
+PROBLEM_FILE = /home/eason-studio/workspace/falcon_publish_ws/src/FALCON/falcon_planner/exploration_utils/resource/coverage_path.tsp
+GAIN23 = NO
+OUTPUT_TOUR_FILE =/home/eason-studio/workspace/falcon_publish_ws/src/FALCON/falcon_planner/exploration_utils/resource/coverage_path.txt
+RUNS = 1

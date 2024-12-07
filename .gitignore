@@ -1,0 +1,5 @@
+exploration_planner/exploration_manager/log/exploration_node*
+exploration_planner/utils/resource/*.txt
+exploration_planner/utils/resource/*.tsp
+exploration_planner/utils/resource/*.tsp
+exploration_planner/fast_planner/result/*

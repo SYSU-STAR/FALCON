@@ -1,0 +1,8 @@
+perception_utils: 
+  fov_type_str: pinhole
+  top_angle: 0.497418837
+  left_angle: 0.750491578
+  right_angle: 0.750491578
+  max_dist: 5.0
+  vis_dist: 1.0
+  cam_fov_voxel_resolution: 0.5

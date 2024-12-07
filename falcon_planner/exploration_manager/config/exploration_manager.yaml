@@ -1,0 +1,19 @@
+exploration_manager:
+  auto_start: true
+  hybrid_search_radius: 15.0
+  unknown_penalty_factor: 2.0
+
+  # Local planner refinement
+  refined_num: 7
+  refined_radius: 5.0
+  max_decay: 0.8
+  top_view_num: 15
+
+  fsm:
+    replan_thresh1: 0.05
+    replan_thresh2: 0.2
+    replan_thresh3: 3.0
+    # replan duration is dynamically adjusted based on the current computation time
+    replan_duration_fast: 0.05
+    replan_duration_default: 0.1
+    replan_duration_slow: 0.2

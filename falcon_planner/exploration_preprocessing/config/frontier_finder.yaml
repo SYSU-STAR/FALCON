@@ -1,0 +1,18 @@
+frontier_finder:
+  cluster_min: 100
+  cluster_size_xy: 2.5
+  cluster_size_z: 2.5
+  min_candidate_dist: 0.5
+  min_candidate_clearance: 0.21
+  min_candidate_occupied_clearance: 0.5
+  candidate_dphi: 0.2617993877991494 # 15 degrees in radians
+  candidate_rnum: 3
+  candidate_rmin: 1.5
+  candidate_rmax: 2.5
+  down_sample: 3
+  min_visib_num: 15
+  min_view_finish_fraction: 0.25
+  ground_height: 0.0 # Remove noise close to ground with height
+  ground_offset: 0.1 # less than ground_height + ground_offset
+  viewpoint_z_score_cutoff: 0.0
+  cell_height_clearance: 0.1
