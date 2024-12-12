@@ -575,7 +575,7 @@ int ExplorationManager::planExploreMotionHGrid(const Vector3d &pos, const Vector
 
     double sop_time = (ros::Time::now() - t1).toSec();
     ROS_INFO("[ExplorationManager] SOP time: %.2f ms", sop_time * 1000.0);
-    CHECK_LE(sop_time, 0.5) << "SOP solver internal error detected, solver blocked with unknown "
+    CHECK_LE(sop_time, 1.0) << "SOP solver internal error detected, solver blocked with unknown "
                                "error. Please restart the planner";
     ee_->sop_times_.push_back(make_pair(sop_cost_matrix_time, sop_time));
 

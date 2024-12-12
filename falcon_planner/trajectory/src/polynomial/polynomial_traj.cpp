@@ -2,6 +2,42 @@
 #include <polynomial/polynomial_traj.h>
 
 namespace fast_planner {
+void PolynomialTraj::oneSegmentTraj(const Eigen::Vector3d &start_pos,
+                                    const Eigen::Vector3d &end_pos,
+                                    const Eigen::Vector3d &start_vel,
+                                    const Eigen::Vector3d &end_vel,
+                                    const Eigen::Vector3d &start_acc,
+                                    const Eigen::Vector3d &end_acc, const double &time,
+                                    PolynomialTraj &poly_traj) {
+  Eigen::MatrixXd Ab = Eigen::MatrixXd::Zero(6, 6);
+  Eigen::VectorXd Dx = Eigen::VectorXd::Zero(6);
+  Eigen::VectorXd Dy = Eigen::VectorXd::Zero(6);
+  Eigen::VectorXd Dz = Eigen::VectorXd::Zero(6);
+  double T = time;
+  // clang-format off
+  Ab << 1, 0, 0, 0, 0, 0, \
+        1, pow(T, 1), pow(T, 2), pow(T, 3), pow(T, 4), pow(T, 5), \
+        0, 1, 0, 0, 0, 0, \
+        0, 1, 2 * pow(T, 1), 3 * pow(T, 2), 4 * pow(T, 3), 5 * pow(T, 4), \
+        0, 0, 2, 0, 0, 0, \
+        0, 0, 2, 6 * pow(T, 1), 12 * pow(T, 2), 20 * pow(T, 3);
+  // clang-format on
+  Dx << start_pos(0), end_pos(0), start_vel(0), end_vel(0), start_acc(0), end_acc(0);
+  Dy << start_pos(1), end_pos(1), start_vel(1), end_vel(1), start_acc(1), end_acc(1);
+  Dz << start_pos(2), end_pos(2), start_vel(2), end_vel(2), start_acc(2), end_acc(2);
+  
+  Eigen::VectorXd Px, Py, Pz;
+  Px = Eigen::VectorXd::Zero(6);
+  Py = Eigen::VectorXd::Zero(6);
+  Pz = Eigen::VectorXd::Zero(6);
+  Px = Ab.colPivHouseholderQr().solve(Dx);
+  Py = Ab.colPivHouseholderQr().solve(Dy);
+  Pz = Ab.colPivHouseholderQr().solve(Dz);
+  poly_traj.reset();
+  Polynomial poly(Px, Py, Pz, time);
+  poly_traj.addSegment(poly);
+}
+
 void PolynomialTraj::waypointsTraj(const Eigen::MatrixXd& positions, const Eigen::Vector3d& start_vel,
                                    const Eigen::Vector3d& end_vel, const Eigen::Vector3d& start_acc,
                                    const Eigen::Vector3d& end_acc, const Eigen::VectorXd& times,
