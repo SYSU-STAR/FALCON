@@ -84,32 +84,54 @@ void FastPlannerManager::planExplorationPositionTraj(const vector<Eigen::Vector3
     pos.row(i) = tour[i];
 
   Eigen::VectorXd times(pt_num - 1); // time for each segment on tour
+  Eigen::Vector3d first_seg_vel;
   for (int i = 0; i < pt_num - 1; ++i) {
-    times(i) = (pos.row(i + 1) - pos.row(i)).norm() / (pp_.max_vel_);
-
-    if (i == 0) {
-      // consider cur_vel for first segment
-      Vector3d dir;
-      dir = (pos.row(1) - pos.row(0)).normalized();
-      double vc = cur_vel.dot(dir);
-      double t = pow(pp_.max_vel_ - fabs(vc), 2) / (2 * pp_.max_vel_ * pp_.max_acc_);
-
-      if (vc < 0) {
-        t += 2 * fabs(vc) / pp_.max_acc_;
+    Eigen::Vector3d time_xyz;
+    Eigen::Vector3d dir = (pos.row(i + 1) - pos.row(i)).normalized();
+    for (int j = 0; j < 3; ++j) {
+      double len = fabs(pos(i + 1, j) - pos(i, j));
+      double len_threshold = (pow(pp_.max_vel_, 2) - pow(cur_vel(j), 2)) / (2 * pp_.max_acc_);
+      if (i == 0) {
+        // consider cur_vel for first segment
+        if (len < len_threshold) {
+          double vc = cur_vel(j);
+          double t =
+              (sqrt(pow(vc, 2) + 2 * pp_.max_acc_ * 0.5 * len) - fabs(vc)) / (pp_.max_acc_ * 0.5);
+          if (vc * dir(j) < 0) {
+            t += 2 * fabs(vc) / (pp_.max_acc_ * 0.5);
+          }
+          time_xyz(j) = t;
+        } else {
+          double vc = cur_vel(j);
+          double t = pow(pp_.max_vel_ - fabs(vc), 2) / (2 * pp_.max_vel_ * pp_.max_acc_);
+          if (vc * dir(j) < 0) {
+            t += 2 * fabs(vc) / pp_.max_acc_;
+          }
+          time_xyz(j) = fabs(pos(i + 1, j) - pos(i, j)) / (pp_.max_vel_) + t;
+        }
+        if (pos(i + 1, j) - pos(i, j) < 0) {
+          first_seg_vel(j) = cur_vel(j) - pp_.max_acc_ * time_xyz(j);
+        } else {
+          first_seg_vel(j) = cur_vel(j) + pp_.max_acc_ * time_xyz(j);
+        }
+        first_seg_vel(j) = max(-pp_.max_vel_, min(pp_.max_vel_, first_seg_vel(j)));
       }
-      times(i) += t;
-    }
-
-    if (i == pt_num - 2) {
-      // consider vel change for last segment to zero
-      double vc = pp_.max_vel_;
-      double t = pow(0 - fabs(vc), 2) / (2 * pp_.max_vel_ * pp_.max_acc_);
-
-      if (vc < 0) {
-        t += 2 * fabs(vc) / pp_.max_acc_;
+      if (i == pt_num - 2) {
+        // consider vel change for last segment to zero
+        double vc = 0.0;
+        if (pt_num == 3) {
+          vc = first_seg_vel(j);
+        } else {
+          vc = (pos(i + 1, j) - pos(i, j) < 0) ? -pp_.max_vel_ : pp_.max_vel_;
+        }
+        double t = pow(0 - fabs(vc), 2) / (2 * pp_.max_vel_ * pp_.max_acc_);
+        if (vc * dir(j) < 0) {
+          t += 2 * fabs(vc) / pp_.max_acc_;
+        }
+        time_xyz(j) += t;
       }
-      times(i) += t;
     }
+    times(i) = time_xyz.maxCoeff();
   }
 
   // Print times
@@ -127,13 +149,29 @@ void FastPlannerManager::planExplorationPositionTraj(const vector<Eigen::Vector3
 
   bool need_optimize = true;
 
-  PolynomialTraj::waypointsTraj(pos, cur_vel_bound, Eigen::Vector3d::Zero(), cur_acc_bound,
-                                Eigen::Vector3d::Zero(), times, local_data_.init_traj_poly_);
+  bool is_tour_straight_line = false;
+  if (tour.size() == 3) {
+    Eigen::Vector3d dir1 = (tour[1] - tour[0]).normalized();
+    Eigen::Vector3d dir2 = (tour[2] - tour[1]).normalized();
+    if (dir1.dot(dir2) > 1 - 1e-3) {
+      is_tour_straight_line = true;
+    }
+  }
+  if (is_tour_straight_line) {
+    PolynomialTraj::oneSegmentTraj(tour[0], tour[2], cur_vel_bound, Eigen::Vector3d::Zero(),
+                                   cur_acc_bound, Eigen::Vector3d::Zero(), times.sum(), local_data_.init_traj_poly_);
+  } else {
+    PolynomialTraj::waypointsTraj(pos, cur_vel_bound, Eigen::Vector3d::Zero(), cur_acc_bound,
+                                  Eigen::Vector3d::Zero(), times, local_data_.init_traj_poly_);
+  }
   PolynomialTraj &init_traj = local_data_.init_traj_poly_;
 
   if (tour.size() == 3 && (tour[1] - tour[0]).norm() + (tour[2] - tour[1]).norm() < 1.0) {
     ROS_WARN("[FastPlannerManager] Short path, no need to optimize.");
     need_optimize = false;
+
+    PolynomialTraj::oneSegmentTraj(tour[0], tour[2], cur_vel_bound, Eigen::Vector3d::Zero(),
+                                   cur_acc_bound, Eigen::Vector3d::Zero(), times.sum(), init_traj);
 
     // Hack for short tour glitch
     double tour_len = (tour[1] - tour[0]).norm() + (tour[2] - tour[1]).norm();
@@ -298,9 +336,8 @@ void FastPlannerManager::planExplorationYawWaypointsTraj(
   // Call B-spline optimization solver
   int cost_func = BsplineOptimizer::EXPLORATION_YAW_PHASE;
 
-  vector<Eigen::Vector3d> start = {Eigen::Vector3d(start_yaw3d[0], cur_yaw_vel, 0),
-                                   Eigen::Vector3d(start_yaw3d[1], 0, 0),
-                                   Eigen::Vector3d(start_yaw3d[2], 0, 0)};
+  vector<Eigen::Vector3d> start = {Eigen::Vector3d(start_yaw3d[0], start_yaw3d[1], start_yaw3d[2]),
+                                   Eigen::Vector3d(cur_yaw_vel, 0, 0), Eigen::Vector3d(0, 0, 0)};
   vector<Eigen::Vector3d> end = {Eigen::Vector3d(end_yaw3d[0], 0, 0), Eigen::Vector3d(0, 0, 0)};
   bspline_optimizers_[1]->setBoundaryStates(start, end);
   bspline_optimizers_[1]->setWaypoints(yaw_waypts, yaw_waypts_idx);

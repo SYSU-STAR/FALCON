@@ -154,6 +154,11 @@ public:
     mean_d /= double(sample_num);
   }
 
+  static void oneSegmentTraj(const Eigen::Vector3d &start_pos, const Eigen::Vector3d &end_pos,
+                             const Eigen::Vector3d &start_vel, const Eigen::Vector3d &end_vel,
+                             const Eigen::Vector3d &start_acc, const Eigen::Vector3d &end_acc,
+                             const double &time, PolynomialTraj &poly_traj);
+
   // input : position of waypoints, start/end vel and acc, segment time
   // Pos: Nx3
   static void waypointsTraj(const Eigen::MatrixXd &positions, const Eigen::Vector3d &start_vel,

@@ -4,7 +4,6 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Trajectory1
         - /Trajectory1/bspline_traj1/Namespaces1
         - /Trajectory1/position_cmd1
         - /Trajectory1/position_cmd1/Namespaces1
@@ -165,7 +164,6 @@ Visualization Manager:
           Marker Topic: /planning/position_cmd_vis
           Name: position_cmd
           Namespaces:
-            current_cmd: true
             current_fov: true
           Queue Size: 100
           Value: true
@@ -907,7 +905,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 22.538219451904297
+      Distance: 38.2598991394043
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -915,17 +913,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -0.7072279453277588
-        Y: -8.028024673461914
-        Z: -4.76837158203125e-06
-      Focal Shape Fixed Size: false
+        X: 3
+        Y: -7.5
+        Z: -5.5
+      Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.41039881110191345
+      Pitch: 0.4000000059604645
       Target Frame: <Fixed Frame>
-      Yaw: 3.030402660369873
+      Yaw: 3.5999999046325684
     Saved:
       - Class: rviz/ThirdPersonFollower
         Distance: 24
